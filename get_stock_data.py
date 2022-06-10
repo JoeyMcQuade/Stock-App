@@ -8,30 +8,35 @@ import requests
 """
 
 
-def get_data_from_api():
-    url = "https://alpha-vantage.p.rapidapi.com/query"
-    querystring = {"function": "TIME_SERIES_DAILY_ADJUSTED", "symbol": "MSFT", "outputsize": "compact",
-                   "datatype": "json"}
-    headers = {
-        "X-RapidAPI-Key": "cca6cc9fd3mshe16648624226edcp16fc0bjsnbf9ae908dcb6",
-        "X-RapidAPI-Host": "alpha-vantage.p.rapidapi.com"
-    }
+class StockData:
 
-    response = requests.request("GET", url, headers=headers, params=querystring)
+    def __init__(self):
+        self.raw_data = {}
 
-    return response.json()["Time Series (Daily)"]
+    def get_data_from_api(self) -> any:
+        url = "https://alpha-vantage.p.rapidapi.com/query"
+        querystring = {"function": "TIME_SERIES_DAILY_ADJUSTED", "symbol": "KLJAD", "outputsize": "compact",
+                       "datatype": "json"}
+        headers = {
+            "X-RapidAPI-Key": "cca6cc9fd3mshe16648624226edcp16fc0bjsnbf9ae908dcb6",
+            "X-RapidAPI-Host": "alpha-vantage.p.rapidapi.com"
+        }
 
+        response = requests.request("GET", url, headers=headers, params=querystring)
+        try:
+            if self.check_there_is_valid_data(response):
+                self.raw_data = response.json()["Time Series (Daily)"]
+        except:
+            print("Could not collect data.")
 
-raw_data = get_data_from_api()
+    def check_there_is_valid_data(self, response):
+        if not response.content or response.status_code == 404:
+            print("The given stock could not be found")
+            return False
+        return True
 
-
-def get_five_latest_days():
-    return_values = [raw_data[x]["4. close"] for x in raw_data]
-    return return_values
-    # data = raw_data["2022-06-10"]
-    # close = data['4. close']
-
-
-
-if __name__ == "__main__":
-    print(get_five_latest_days())
+    def get_five_latest_days(self):
+        self.get_data_from_api()
+        # TODO: Get the date from the raw_data
+        return_values = [{x, self.raw_data[x]["4. close"]} for x in self.raw_data]
+        return return_values[:5]
