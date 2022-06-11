@@ -1,5 +1,4 @@
 import requests
-
 """
     Gets some stock data from an api and converts it into a graph.
     <<GOAL>> Send a request with param of <<str: symbol>> (company name_ then returns the relevant data with that 
@@ -8,35 +7,74 @@ import requests
 """
 
 
-class StockData:
+# class StockData:
+#
+#     def __init__(self):
+#         self.raw_data = {}
+#
+#     def get_ticker_symbol(self) -> str:
+#         company = input("Please enter company name")
+#         # send a GET request with the company name as keyword in the url
+#         res = requests.get(f'https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords={company}&apikey=cca6cc9fd3mshe16648624226edcp16fc0bjsnbf9ae908dcb6')
+#         ticker_symbol = res.json()
+#         return ticker_symbol["bestMatches"][1]["1. symbol"]
+#
+#     def get_data_from_api(self) -> any:
+#         url = "https://alpha-vantage.p.rapidapi.com/query"
+#         querystring = {"function": "TIME_SERIES_DAILY_ADJUSTED", "symbol": f"{self}", "outputsize": "compact",
+#                        "datatype": "json"}
+#         headers = {
+#             "X-RapidAPI-Key": "cca6cc9fd3mshe16648624226edcp16fc0bjsnbf9ae908dcb6",
+#             "X-RapidAPI-Host": "alpha-vantage.p.rapidapi.com"
+#         }
+#
+#         response = requests.request("GET", url, headers=headers, params=querystring)
+#         try:
+#             if self.check_there_is_valid_data(response):
+#                 self.raw_data = response.json()["Time Series (Daily)"]
+#         except:
+#             print("Could not collect data.")
+#
+#     def check_there_is_valid_data(self, response):
+#         if not response.content or response.status_code == 404:
+#             print("The given stock could not be found")
+#             return False
+#         return True
+#
+#     def get_five_latest_days(self):
+#         #self.get_ticker_symbol()
+#         self.get_data_from_api()
+#         # TODO: Get the date from the raw_data
+#         return_values = [{x, self.raw_data[x]["4. close"]} for x in self.raw_data]
+#         return return_values[:5]
 
-    def __init__(self):
-        self.raw_data = {}
+def get_ticker_symbol():
+    company = input("Please enter company name ")
+    # send a GET request with the company name as keyword in the url
+    res = requests.get(f'https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords={company}&apikey=cca6cc9fd3mshe16648624226edcp16fc0bjsnbf9ae908dcb6')
+    ticker_symbol = res.json()["bestMatches"][1]["1. symbol"]
+    return ticker_symbol
 
-    def get_data_from_api(self) -> any:
-        url = "https://alpha-vantage.p.rapidapi.com/query"
-        querystring = {"function": "TIME_SERIES_DAILY_ADJUSTED", "symbol": "KLJAD", "outputsize": "compact",
-                       "datatype": "json"}
-        headers = {
-            "X-RapidAPI-Key": "cca6cc9fd3mshe16648624226edcp16fc0bjsnbf9ae908dcb6",
-            "X-RapidAPI-Host": "alpha-vantage.p.rapidapi.com"
-        }
+def get_data_from_api(ticker_symbol):
+    url = "https://alpha-vantage.p.rapidapi.com/query"
+    querystring = {"function": "TIME_SERIES_DAILY_ADJUSTED", "symbol": f"{ticker_symbol}", "outputsize": "compact",
+                   "datatype": "json"}
+    headers = {
+        "X-RapidAPI-Key": "cca6cc9fd3mshe16648624226edcp16fc0bjsnbf9ae908dcb6",
+        "X-RapidAPI-Host": "alpha-vantage.p.rapidapi.com"
+    }
 
-        response = requests.request("GET", url, headers=headers, params=querystring)
-        try:
-            if self.check_there_is_valid_data(response):
-                self.raw_data = response.json()["Time Series (Daily)"]
-        except:
-            print("Could not collect data.")
+    response = requests.request("GET", url, headers=headers, params=querystring)
+    return response.json()["Time Series (Daily)"]
 
-    def check_there_is_valid_data(self, response):
-        if not response.content or response.status_code == 404:
-            print("The given stock could not be found")
-            return False
-        return True
 
-    def get_five_latest_days(self):
-        self.get_data_from_api()
-        # TODO: Get the date from the raw_data
-        return_values = [{x, self.raw_data[x]["4. close"]} for x in self.raw_data]
-        return return_values[:5]
+raw_data = get_data_from_api(get_ticker_symbol())
+
+
+def get_five_latest_days():
+    return_values = [raw_data[x]["4. close"] for x in raw_data]
+    return return_values[:5]
+
+print(get_five_latest_days())
+
+
