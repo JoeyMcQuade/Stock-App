@@ -43,6 +43,9 @@ def get_data_from_api(ticker_symbol: int) -> dict:
 def get_most_recent_days(raw_data: dict, day_range: int) -> List[dict]:
     """
     Returns relevant stock data for the date range provided.
+    Remarks:
+
+    [{'date': 'yyyy-mm-dd', 'open': 'float', 'high': 'float', 'low': 'float', 'close': 'float'}]
     """
     return_values = [{
         'date': current_selected_data,
